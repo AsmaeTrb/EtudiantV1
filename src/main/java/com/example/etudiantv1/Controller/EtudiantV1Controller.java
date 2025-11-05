@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.servers.Server;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -49,16 +50,29 @@ public class EtudiantV1Controller {
                                     mediaType = "application/json",
                                     array = @ArraySchema(schema = @Schema(implementation = EtudiantResponse.class))
                             )
-                    ),
-                    @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
+                    )
             }
     )
-    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
+    @GetMapping
     public ResponseEntity<List<EtudiantResponse>> getAllEtudiants() {
-        List<EtudiantResponse> list = etudiantService.getALLEtudiant();
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(etudiantService.getALLEtudiant());
     }
 
+    @Operation(
+            summary = "Récupérer un étudiant par son identifiant",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Étudiant trouvé",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = EtudiantResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "Étudiant introuvable")
+            }
+    )
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
+    @GetMapping("/{id}")
+    public ResponseEntity<EtudiantResponse> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(etudiantService.getEtudiantById(id)); // lève 404 si non trouvé dans le service
+    }
     // ✅ POST
     @Operation(
             summary = "Créer un nouvel étudiant",
@@ -80,10 +94,28 @@ public class EtudiantV1Controller {
                     @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
             }
     )
+    // ===== G
+    @PreAuthorize("hasAuthority('SCOPE _ADMIN')")
     @PostMapping
     public ResponseEntity<EtudiantResponse> createEtudiant(@RequestBody EtudiantRequest etudiantRequest) {
         EtudiantResponse created = etudiantService.createEtudiant(etudiantRequest);
         return ResponseEntity.created(URI.create("/api/v1/etudiants/" + created.getId())).body(created);
+    }
+    @Operation(
+            summary = " supprimer etudiant par Id",
+            parameters = @Parameter(name = "id", required = true),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "bien supprimer"),
+                    @ApiResponse(responseCode = "4xx",description = "erreur client"),
+                    @ApiResponse(responseCode = "5xx",description = "erreur serveur"),
+            }
+    )
+
+    @PreAuthorize("hasAuthority('SCOPE _ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity delete(@PathVariable Integer id) {
+        etudiantService.DeleteByid(id);
+        return ResponseEntity.ok().build();
     }
 
 }

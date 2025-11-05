@@ -49,6 +49,13 @@ public class EtudiantService {
 
         return response;
     }
+    public void DeleteByid(Integer id) {
+        Etudiant etudiant = etudiantRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Étudiant non trouvé avec ID : " + id));
+
+        etudiantRepository.delete(etudiant);
+    }
+
 
 
 }
