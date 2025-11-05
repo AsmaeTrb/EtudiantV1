@@ -34,10 +34,21 @@ public class EtudiantService {
         response.setFilliere(filliere);
         return response;
     }
-    public List<EtudiantResponse> getALLEtudiant () {
+    public List<EtudiantResponse> getALLEtudiant() {
         return etudiantRepository.findAll().stream().map(etudiantMapper::entityToDto).collect(Collectors.toList());
 
-
     }
+    public EtudiantResponse getEtudiantById(Integer id) {
+        Etudiant etudiant = etudiantRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Étudiant non trouvé avec ID : " + id));
+
+        EtudiantResponse response = etudiantMapper.entityToDto(etudiant);
+
+        FilliereDto filliere = filliereClient.getFiliereById(etudiant.getFilliereId());
+        response.setFilliere(filliere);
+
+        return response;
+    }
+
 
 }

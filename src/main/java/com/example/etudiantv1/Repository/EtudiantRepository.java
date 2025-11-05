@@ -8,5 +8,4 @@ import java.util.Optional;
 
 public interface EtudiantRepository  extends JpaRepository<Etudiant, Integer> {
     Optional<Etudiant> findByCne(String cne);
-    List<Etudiant> findByFiliereId(Long idfilliere);
 }

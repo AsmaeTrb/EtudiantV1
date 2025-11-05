@@ -53,7 +53,7 @@ public class EtudiantV1Controller {
                     @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
             }
     )
-    @GetMapping
+    @GetMapping("/{id}")
     public ResponseEntity<List<EtudiantResponse>> getAllEtudiants() {
         List<EtudiantResponse> list = etudiantService.getALLEtudiant();
         return ResponseEntity.ok(list);
